@@ -5,6 +5,7 @@
 import { designJsonUrl, projectUploadsApiUrl, uploadJsonUrl } from "../lib/uploadUrl";
 import {
   DEFAULT_BLOCK_STAGE,
+  METRIC_WIDGET_KEYWORDS,
   TREE_STAGE_IDS,
   blockBodyKind,
   classifyFlowStage,
@@ -123,11 +124,21 @@ function extractMetrics(payload) {
   const metrics = {};
   Object.entries(item).forEach(([section, body]) => {
     if (section === "stage_qa") return;
-    const data = dig(body, "data");
+    if (!body || typeof body !== "object" || Array.isArray(body)) return;
+    const out = {};
+    const data = body.data;
     if (data && typeof data === "object") {
       const cleaned = scrubPaths(data);
-      if (cleaned && Object.keys(cleaned).length) metrics[section] = cleaned;
+      if (cleaned && typeof cleaned === "object" && !Array.isArray(cleaned) && Object.keys(cleaned).length) {
+        Object.assign(out, cleaned);
+      }
     }
+    METRIC_WIDGET_KEYWORDS.forEach((keyword) => {
+      if (!Object.prototype.hasOwnProperty.call(body, keyword)) return;
+      const cleaned = scrubPaths(body[keyword]);
+      if (cleaned !== undefined) out[keyword] = cleaned;
+    });
+    if (Object.keys(out).length) metrics[section] = out;
   });
   return metrics;
 }

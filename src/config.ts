@@ -61,6 +61,17 @@ export function classifyFlowStage(sourceName: unknown, stage: unknown): string {
 /** Version-page "meta" table columns (fields on the stage node). */
 export const META_FIELDS = ["version", "owner", "uploader", "upload_date", "runtime", "design"] as const;
 
+/**
+ * Keys under `item.<section>` that render via `src/lib/widgets` instead of StageHierarchyTables.
+ * Add a keyword here, extract it in `extractMetrics`, and register a component in `lib/widgets`.
+ */
+export const METRIC_WIDGET_KEYWORDS = ["time_table"] as const;
+export type MetricWidgetKeyword = (typeof METRIC_WIDGET_KEYWORDS)[number];
+
+export function isMetricWidgetKeyword(key: unknown): boolean {
+  return (METRIC_WIDGET_KEYWORDS as readonly string[]).includes(String(key));
+}
+
 /** Keys/values that look like filesystem paths; stripped before metrics hit the UI. */
 export const PATHISH_KEY_HINTS = [
   "picture",
